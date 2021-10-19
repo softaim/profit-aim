@@ -1,0 +1,71 @@
+//@version=4
+// Profit-AiM ~Trailing SL~Swing~ is Scripted by Vikas Chaudhary-(MyAiM-HRDP)
+// Copyright @ www.gkaim.com 
+///////////////////////// Follow Bellow to Get 90% Profit /////////////////////////
+// 1- Please Don't edit or change any Setting.
+// 2- Buy if HIGH BREAKS the Signal given Candle // Sell if LOW BREAKS the Signal given Candle.
+// 3- Use Trailing StopLoss (SL) on shown lines => Put SL on shown Green Lines if on Buy Side  or Put SL on Red Lines if on Sell side and Trail it as line goes. 
+// 4- Profit-AiM is Best for Short term Trading (20-30 days) .
+// 5- For Swing Trading Use 1hrs/4hrs Min candle chart . 
+// 6- For Intraday use 5-Min candle chart.
+// 7- Avoid Full Gap Up / Full Gap Down Stocks .
+////////////////////// Enjoy Trading  //////////////////////////////////////////////////
+study(title="Profit-AiM ~Trailing SL~Swing~", overlay=true)
+
+nATRPeriod = input(21, "Per")
+nATRMultip = input(6.3, "Mul", type=input.float, minval=0.5, maxval=1000, step=0.1)
+
+/////////////////////////////////////////////////////////////////////////////////
+
+xATR = atr(nATRPeriod)
+nLoss = nATRMultip * xATR
+vikas = float(na)
+vikas := iff(close > nz(vikas[1], 0) and close[1] > nz(vikas[1], 0), max(nz(vikas[1]), close - nLoss), iff(close < nz(vikas[1], 0) and close[1] < nz(vikas[1], 0), min(nz(vikas[1]), close + nLoss), iff(close > nz(vikas[1], 0), close - nLoss, close + nLoss)))
+
+pos = int(na)
+pos := iff(close[1] < nz(vikas[1], 0) and close > nz(vikas[1], 0), 1, iff(close[1] > nz(vikas[1], 0) and close < nz(vikas[1], 0), -1, nz(pos[1], 0)))
+
+color_1 = pos == -1 ? color.red : pos == 1 ? color.lime : color.blue
+patr = plot(vikas, color=color_1, linewidth=2, title="Trailing SL", transp=0)
+
+//  LONG
+isLong = false
+isLong := nz(isLong[1], false)
+
+// SHORT
+isShort = false
+isShort := nz(isShort[1], false)
+
+//Trading
+// Buy only if the buy signal is triggered
+LONG = not isLong and pos == 1
+
+
+// Sell only if the sell signal is triggered   
+SHORT = not isShort and pos == -1
+
+
+if LONG
+    isLong := true
+    isShort := false
+    isShort
+
+if SHORT
+    isLong := false
+    isShort := true
+    isShort
+// => Remove // from bellow if  want bar colors 
+//barcolor (isLong ? lime : isShort ? red : na)
+
+
+// Signal B=> Buy ... S=> Sell
+plotshape(SHORT, title="Sell", style=shape.labeldown, location=location.abovebar, size=size.normal, text="S", transp=0, textcolor=color.white, color=color.red, transp=0)
+plotshape(LONG, title="Buy", style=shape.labelup, location=location.belowbar, size=size.normal, text="B", textcolor=color.white, color=color.green, transp=0)
+
+
+// Send alert to TV alarm sub-system
+alertcondition(LONG, title="Sell", message="Sell")
+alertcondition(SHORT, title="BuY", message="Buy")
+alertcondition(SHORT, title="BuY", message="Buy")
+alertcondition(SHORT, title="BuY", message="Buy")
+
